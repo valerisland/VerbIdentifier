@@ -1,0 +1,2 @@
+# VerbIdentifier
+Дипломный проект
