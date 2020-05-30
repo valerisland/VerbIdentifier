@@ -1,0 +1,1004 @@
+// Verb Tenses Identifier
+
+Phase: VerbTenses
+Input: Token
+Options: control = appelt
+
+// MACROS
+
+Macro: ADVERB
+(
+({Token.category == RB})[1,3]
+)
+
+Macro: DO
+({Token.string == "do"}|{Token.string == "does"})
+
+Macro: NEGATION
+(
+ (DO)?
+({Token.string == "not"}) |
+({Token.string == "n't"}) |
+({Token.string == "never"})
+)
+
+Macro: ISARE
+(
+  ({Token.string == "is" } | { Token.string == "are" })
+)
+
+Macro: WASWERE
+(
+  ({Token.string == "was" } | { Token.string == "were" })
+)
+
+Macro: HAVE
+(
+  ({Token.string == "has"} | {Token.string == "have"})
+)
+
+Macro: WILL
+(
+  ({Token.string == "will"} | {Token.string == "shall"}
+| {Token.string == "wo"} | {Token.string == "'ll"})
+)
+
+
+
+// 1.1 Present Simple Active (Negative) : does not do
+Rule: PresentSimpleActiveNegative
+(
+({Token.string == "do"}|{Token.string == "does"})
+(NEGATION)
+({Token.category == "VB"})
+):verbtense 
+--> :verbtense.PresentSimpleActive = 
+{ 
+  action = "Simple",
+  tense = "Present",
+  voice = "Аctive",
+  form = "Negative",
+  rule = "PresentSimpleActiveNegative"
+}
+
+// 1.2. Present Simple Active (Negative) : is not
+Rule: PresentSimpleActiveNegative2
+(
+(
+({ Token.string == "is"})
+|
+({ Token.string == "are"})
+|
+({ Token.string == "am"})
+|
+({ Token.string == "have"})
+|
+({ Token.string == "has"})
+)
+(NEGATION) 
+):verbtense -->
+:verbtense.PresentSimpleActive = 
+{ 
+action = "Simple",
+tense = "Present",
+voice = "Active",
+form = "Negative",
+rule = "PresentSimpleActiveNegative2"
+}
+
+// 1.3. Present Simple Active: does or do
+Rule: PresentSimpleActive
+(
+({Token.category == "VBP"}|{Token.category == "VBZ"})
+):verbtense 
+--> :verbtense.PresentSimpleActive = 
+{ 
+  action = "Simple",
+  tense = "Present",
+  voice = "Active",
+  form = "Positive",
+  rule = "PresentSimpleActive"
+}
+
+
+// 2.1. Present Simple Passive (Negative) : is not done
+Rule: PresentSimplePassiveNegative
+(
+(ISARE)
+(NEGATION)
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense --> :verbtense.PresentSimplePassive = 
+{ 
+  action = "Simple",
+  tense = "Present",
+  voice = "Passive",
+  form = "Negative",
+  rule = "PresentSimplePassiveNegative"
+}
+
+// 2.2. Present Simple Passive: are done
+Rule: PresentSimplePassive
+(
+({Token.string == "is" } | { Token.string == "are" })
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense --> :verbtense.PresentSimplePassive = 
+{ 
+  action = "Simple",
+  tense = "Present",
+  voice = "Passive",
+  form = "Positive",
+  rule = "PresentSimplePassive"
+}
+
+
+// 3.1. Present Continuous Active (negative): is not doing
+Rule: PresentContinuousActiveNegative
+(
+(ISARE)
+(NEGATION)
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense -->
+:verbtense.PresentContinuousActive  = { 
+  action = "Continuous",
+  tense = "Present",
+  voice = "Active",
+  form = "Negative" ,
+  rule = "PresentContinuousActiveNegative"
+}
+
+// 3.2. Present Continuous Active (negative): not working
+Rule: PresentContinuousActiveNegative1
+(
+(NEGATION) (ADVERB)?
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.PresentContinuousActive  = 
+{ 
+  action = "Continuous",
+  tense = "Present",
+  voice = "Active" ,
+  form = "Negative",
+rule = "PresentContinuousActiveNegative1"}
+
+// 3.3. Present Continuous Active: is doing or are doing
+Rule: PresentContinuousActive
+(
+({Token.string == "is"} | {Token.string == "are"})
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense
+-->
+:verbtense.PresentContinuousActive  = 
+{ 
+  action = "Continuous",
+  tense = "Present",
+  voice = "Active",
+  form = "Positive"
+  rule = "PresentContinuousActive"
+}
+
+// 4.1. Present Continuous Passive: is being done
+Rule: PresentContinuousPassive
+(
+(ISARE)
+({Token.string == "being"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PresentContinuousPassive = 
+{ 
+  action = "Continuous",
+  tense = "Present",
+  voice = "Active",
+  form = "Positive",
+  rule =  "PresentContinuousPassive"
+}
+
+// 4.2. Present Continuous Passive (negative): is not being done
+Rule: PresentContinuousPassiveNegative
+(
+(ISARE)
+(NEGATION)
+(ADVERB)?
+({Token.string == "being"})
+({Token.category == "VBN"})
+):verbtense -->
+:verbtense.PresentContinuousPassive = {
+  action = "Continuous",
+  tense = "Present",
+  voice = "Passive",
+  form = "Negative" ,
+  rule = "PresentContinuousPassiveNegative"
+}
+
+// 5. Present Perfect Active (negative): has not done
+Rule: PresentPerfectActiveNegative
+(
+(HAVE)
+(NEGATION)
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense -->
+:verbtense.PresentPerfectActive = {
+action = "Perfect",
+tense = "Present",
+voice = "Active",
+form = "Negative",
+rule = "PresentPerfectActiveNegative"
+}
+
+// 5.2. Present Perfect Active: has done
+Rule: PresentPerfectActive
+(
+(HAVE)
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PresentPerfectActive = {
+action = "Perfect",
+tense = "Present",
+voice = "Active",
+form = "Positive",
+rule = "PresentPerfectActive"
+}
+
+// 6.1. Present Perfect Passive (negative): has not been done
+Rule: PresentPerfectPassiveNegative
+(
+(HAVE)
+(NEGATION)
+(ADVERB)?
+({Token.string == "been"})
+({Token.category == "VBN"})
+):verbtense -->
+:verbtense.PresentPerfectPassive = {
+action = "Perfect",
+tense = "Present",
+voice = "Passive",
+form = "Negative",
+rule = "PresentPerfectPassiveNegative"
+}
+
+// 6.2. Present Perfect Passive: has been done
+Rule: PresentPerfectPassive
+(
+(HAVE)
+({Token.string == "been"})
+(ADVERB)?
+({Token.category == VBN})
+):verbtense 
+-->
+:verbtense.PresentPerfectPassive = {
+action = "Perfect",
+tense = "Present",
+voice = "Passive",
+form = "Positive",
+rule = "PresentPerfectPassive"
+}
+
+// 7.1. Present Perfect Continuous Active (negative): has not been doing
+Rule: PresentPerfectContinuousActiveNegative
+(
+(HAVE)
+(NEGATION)
+(ADVERB)?
+({Token.string == "been"})
+({Token.category == "VBG"})
+):verbtense
+-->
+:verbtense.PresentPerfectContinuousActive = {
+action = "PerfectContinuous",
+tense = "Present",
+voice = "Active",
+form = "Negative",
+rule = "PresentPerfectContinuousActiveNegative"
+}
+
+// 7.2. Present Perfect Continuous Active: has been doing
+Rule: PresentPerfectContinuousActive
+(
+(HAVE)
+({Token.string == "been"})
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.PresentPerfectContinuousActive = {
+action = "PerfectContinuous",
+tense = "Present",
+voice = "Active",
+form = "Positive",
+rule = "PresentPerfectContinuousActive"
+}
+
+// 8.1. Present Perfect Continuous Passive: has not been being done
+Rule: PresentPerfectContinuousPassive
+(
+(HAVE)
+(NEGATION)
+({Token.string == "been"})
+({Token.string == "being"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PresentPerfectContinuousPassive = {
+action = "PerfectContinuous",
+tense = "Present",
+voice = "Passive",
+form = "Negative",
+rule = "PresentPerfectContinuousPassive"
+}
+
+// 8.2. Present Perfect Continuous Passive: has been being done
+Rule: PresentPerfectContinuousPassive
+(
+(HAVE)
+({Token.string == "been"})
+({Token.string == "being"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PresentPerfectContinuousPassive = {
+action = "PerfectContinuous",
+tense = "Present",
+voice = "Passive",
+form = "Positive",
+rule = "PresentPerfectContinuousPassive"
+}
+
+// 9.1. Past Simple Active: was not
+Rule: PastSimpleActiveNegative1
+(
+(
+({ Token.string == "was"})
+|
+({ Token.string == "were"})
+|
+({ Token.string == "had"})
+)
+(NEGATION) 
+):verbtense 
+--> 
+:verbtense.PastSimpleActive = 
+{ 
+action = "Simple",
+tense = "Past",
+voice = "Active",
+form = "Negative",
+rule = "PastSimpleActiveNegative1"}
+
+// 9.2. Past Simple Active (negative): did not do
+Rule: PastSimpleActiveNegative
+(
+({ Token.string == "did"})
+(NEGATION)
+(ADVERB)?
+({Token.category == "VB"})
+):verbtense -->
+:verbtense.PastSimpleActive = 
+{ 
+action = "Simple",
+tense = "Past",
+voice = "Active",
+form = "Negative",
+rule = "PastSimpleActiveNegative"
+}
+
+// 9.3. Past Simple Active: did
+Rule: PastSimpleActive
+(
+({Token.category == "VBD"})
+):verbtense 
+-->
+:verbtense.PastSimpleActive = {
+action = "Simple",
+tense = "Past",
+voice = "Active",
+form = "Positive",
+rule = "PastSimpleActive"
+}
+
+// 10.1. Past Simple Passive (negative): was not done
+Rule: PastSimplePassiveNegative
+(
+(WASWERE)
+(NEGATION)
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense -->
+:verbtense.PastSimplePassive = {
+action = "Simple",
+tdense = "Past",
+voice = "Passive",
+form = "Negative",
+rule = "PastSimplePassiveNegative"
+}
+
+// 10.2. Past Simple Passive: was done
+Rule: PastSimplePassive
+(
+(WASWERE)
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense
+-->
+:verbtense.PastSimplePassive = {
+action = "Simple",
+tense = "Past",
+voice = "passive",
+rule = "PastSimplePassive"
+}
+
+// 11. Past Continuous Active (negative): was not doing
+Rule: PastContinuousActiveNegative
+(
+(WASWERE)
+(NEGATION)
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense -->
+:verbtense.PastContinuousActive = {
+action = "Continuous",
+tense = "Past",
+voice = "Active",
+form = "Negative",
+rule = "PastContinuousActiveNegative"
+}
+
+// 11.1. Past Continuous Active: was doing
+Rule: PastContinuousActive
+(
+(WASWERE)
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.PastContinuousActive = {
+action = "Continuous",
+tense = "Past",
+voice = "Active",
+form = "Positive",
+rule = "PastContinuousActive"
+}
+
+// 12. Past Continuous Passive (negative): was not being done
+Rule: PastContinuousPassiveNegative
+(
+(WASWERE)
+(NEGATION)
+(ADVERB)?
+({Token.string == "being"})
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PastContinuousPassive = {
+action = "Continuous",
+tense = "Past",
+voice = "Passive",
+form = "Negative",
+rule = "PastContinuousPassiveNegative"
+}
+
+// 12.2. Past Continuous Passive: was being done
+Rule: PastContinuousPassive
+(
+(WASWERE)
+({Token.string == "being"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PastContinuousPassive = {
+action = "Continuous",
+tense = "Past",
+voice = "Passive",
+form = "Positive",
+rule = "PastContinuousPassive"
+}
+
+// 13.1. Past Perfect Active (negative): had not done
+Rule: PastPerfectActiveNegative
+(
+({Token.string == "had"})
+(NEGATION)
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PastPerfectActive = {
+action = "Perfect",
+tense = "Past",
+voice = "active",
+form = "Negative",
+rule = "PastPerfectActiveNegative"
+}
+
+// 13.2. Past Perfect Active: had done
+Rule: PastPerfectActive
+(
+({Token.string == "had"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PastPerfectActive = {
+action = "Perfect",
+tense = "Past",
+voice = "Active",
+form = "Positive",
+rule = "PastPerfectActive"
+}
+
+// 14.1. Past Perfect Passive (negative): had not been done
+Rule: PastPerfectPassiveNegative
+(
+({Token.string == "had"})
+(NEGATION)
+(ADVERB)?
+({Token.string == "been"})
+({Token.category == "VBN"})
+):verbtense
+-->
+:verbtense.PastPerfectPassive = {
+action = "Perfect",
+tense = "Past",
+voice = "Passive",
+form = "Negative",
+rule = "PastPerfectPassiveNegative"
+}
+
+// 14.2. Past Perfect Passive: had been done
+Rule: PastPerfectPassive
+(
+({Token.string == "had"})
+({Token.string == "been"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PastPerfectPassive = {
+action = "Perfect",
+tense = "Past",
+voice = "Passive",
+form = "Positive",
+rule = "PastPerfectPassive"
+}
+
+// 15.1. Past Perfect Continuous Active (negative): had not been doing
+Rule: PastPerfectConActiveNegative
+(
+({Token.string == "had"})
+(NEGATION)
+(ADVERB)?
+({Token.string == "been"})
+({Token.category == "VBG"})
+):verbtense
+-->
+:verbtense.PastPerfectContinuousActive = {
+action = "PerfectContinuous",
+tense = "Past",
+voice = "Active",
+form = "Negative",
+rule = "PastPerfectConActiveNegative"
+}
+
+// 15.2. Past Perfect Continuous Active: had been doing
+Rule: PastPerfectContinuousActive
+(
+({Token.string == "had"})
+({Token.string == "been"})
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.PastPerfectContinuousActive = {
+action = "PerfectContinuous",
+tense = "Past",
+voice = "Active",
+form = "Positive",
+rule = "PastPerfectContinuousActive"
+}
+
+// 16.1. Past Perfect Continuous Passive (negative): had not been being done
+Rule: PastPerfectContinuousPassiveNegative
+(
+({Token.string == "had"})
+(NEGATION)
+(ADVERB)?
+({Token.string == "been"})
+({Token.string == "being"})
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PastPerfectContinuousPassive = {
+action = "PerfectContinuous",
+tense = "Past",
+voice = "Passive",
+form = "Negative",
+rule = "PastPerfectContinuousPassiveNegative"
+}
+
+// 16.2. Past Perfect Continuous Passive: had been being done
+Rule: PastPerfectContinuousPassive
+(
+({Token.string == "had"})
+({Token.string == "been"})
+({Token.string == "being"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.PastPerfectContinuousPassive = {
+action = "PerfectContinuous",
+tense = "Past",
+voice = "Passive",
+form = "Positive",
+rule = "PastPerfectContinuousPassive"
+}
+
+// 17.1. Future Simple Active (negative): will not do
+Rule: FutureSimpleActiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.category == "VB"})
+):verbtense 
+-->
+:verbtense.FutureSimpleActive = {
+action = "Simple",
+tense = "Future",
+voice = "Active",
+form = "Negative",
+rule = "FutureSimpleActiveNegative"
+}
+
+// 17.2. Simple Future Active: will do
+Rule: FutureSimpleActive
+(
+(WILL)
+(ADVERB)?
+({Token.category == "VB"})
+):verbtense 
+-->
+:verbtense.FutureSimpleActive = {
+action = "Simple",
+tense = "Future",
+voice = "Active",
+form = "Positive"
+rule = "FutureSimpleActive"
+}
+
+// 18.1. Future Simple Passive (negative): will not be done
+Rule: FutureSimplePassiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.string == "be"})
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FutureSimplePassive = {
+action = "Simple",
+tense = "Future",
+voice = "Passive",
+form = "Negative",
+rule = "FutureSimplePassiveNegative"
+}
+
+// 18.2. Future Simple  Passive: will be done
+Rule: FutureSimplePassive
+(
+(WILL)
+({Token.string == "be"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FutureSimplePassive = {
+action = "Simple",
+tense = "Future",
+voice = "Passive",
+form = "Positive",
+rule = "FutureSimplePassive"
+}
+
+// 19.1. Future Continuous Active (negative): will not be doing
+Rule: FutureContinuousActiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.string == "be"})
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.FutureContinuousActive = {
+action = "Continuous",
+tense = "Future",
+voice = "Active",
+form = "Negative",
+rule = "FutureContinuousActiveNegative"
+}
+
+// 19.2. Future Continuous Active: will be doing
+Rule: FutureContinuousActive
+(
+(WILL)
+({Token.string == "be"})
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.FutureContinuousActive = {
+action = "Continuous",
+tense = "Future",
+voice = "Active",
+form = "Positive",
+rule = "FutureContinuousActive"
+}
+
+// 20.1. Future Continuous Passive (negative): will not be being done
+Rule: FutureContinuousPassiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.string == "be"})
+({Token.string == "being"})
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FutureContinuousPassive = {
+action = "Continuous",
+tense = "Future",
+voice = "Passive",
+form = "Negative",
+rule = "FutureContinuousPassiveNegative"
+}
+
+// 20.2. Future Continuous Passive: will be being done
+Rule: FutureContinuousPassive
+(
+(WILL)
+({Token.string == "be"})
+({Token.string == "being"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FutureContinuousPassive = {
+action = "Continuous",
+tense = "Future",
+voice = "Passive",
+form = "Positive",
+rule = "FutureContinuousPassive"
+}
+
+// 21.1. Future Perfect Active (negative): will not have done
+Rule: FuturePerfectActiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.string == "have"})
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FuturePerfectActive = {
+action = "Perfect",
+tense = "Future",
+voice = "Active",
+form = "Negative",
+rule = "FuturePerfectActiveNegative"
+}
+
+// 21.2. Future Perfect Active: will have done
+Rule: FuturePerfectActive
+(
+(WILL)
+({Token.string == "have"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FuturePerfectActive = {
+action = "Perfect",
+tense = "Future",
+voice = "Active",
+form = "Positive",
+rule = "FuturePerfectActive"
+}
+
+// 22.1. Future Perfect Passive (negative): will not have been done
+Rule: FuturePerfectPassiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.string == "have"})
+({Token.string == "been"})
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FuturePerfectActive = {
+action = "Perfect",
+tense = "Future",
+voice = "Passive",
+form = "Negative",
+rule = "FuturePerfectPassiveNegative"
+}
+
+// 22.2. Future Perfect Passive: will have being done
+Rule: FuturePerfectPassive
+(
+(WILL)
+({Token.string == "have"})
+({Token.string == "been"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FuturePerfectPassive = {
+action = "Perfect",
+tense = "Future",
+voice = "Passive",
+form = "Positive",
+rule = "FuturePerfectPassive"
+}
+
+// 24.1. Future Perfect Continuous Passive (negative): will not have been being done
+Rule: FuturePerfectContinuousPassiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.string == "have"})
+({Token.string == "been"})
+({Token.string == "being"})
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FuturePerfectContinuousPassive = {
+action = "PerfectContinuous",
+tense = "Future",
+voice = "Passive",
+form = "Negative",
+rule = "FuturePerfectContinuousPassiveNegative"
+}
+
+// 24.2. Future Perfect Continuous Passive: will have been being done
+Rule: FuturePerfectContinuousPassive
+(
+(WILL)
+({Token.string == "have"})
+({Token.string == "been"})
+({Token.string == "being"})
+(ADVERB)?
+({Token.category == "VBN"})
+):verbtense 
+-->
+:verbtense.FuturePerfectContinuousPassive = {
+action = "PerfectContinuous",
+tense = "Future",
+voice = "Passive",
+form = "Positive",
+rule = "FuturePerfectContinuousPassive"
+}
+
+// 23.1. Future Perfect Continuous Active (negative): will not have been doing
+Rule: FuturePerfectContinuousActiveNegative
+(
+(WILL)
+(NEGATION)
+(ADVERB)?
+({Token.string == "have"})
+({Token.string == "been"})
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.FuturePerfectContinuousActive = {
+action = "PerfectContinuous",
+tense = "Future",
+voice = "Active",
+form = "Negative",
+rule = "FuturePerfectConActiveNegative"
+}
+
+// 23.2. Future Perfect Continuous Active: will have been doing
+Rule: FuturePerfectContinuousActive
+(
+(WILL)
+({Token.string == "have"})
+({Token.string == "been"})
+(ADVERB)?
+({Token.category == "VBG"})
+):verbtense 
+-->
+:verbtense.FuturePerfectContinuousActive = {
+action = "PerfectContinuous",
+tense = "Future",
+voice = "Active",
+form = "Positive",
+rule = "FuturePerfectContinuousActive"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
